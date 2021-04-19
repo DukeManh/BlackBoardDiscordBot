@@ -9,6 +9,8 @@
     "sourceType": "module"
   },
   "rules": {
-    "no-console": "off"
+    "no-console": "off",
+    "comma-dangle": "off",
+    "object-curly-newline": "off"
   }
 }
