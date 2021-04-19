@@ -1,23 +1,7 @@
 const Discord = require('discord.js');
-const fetch = require('node-fetch');
 
-const { TOKEN, TENOR_URL, TENOR_TOKEN, GIF_LIMIT } = require('./config');
-
-const getGif = async (param) => {
-  const url = `${TENOR_URL}search?q=${param}&key=${TENOR_TOKEN}&limit=${GIF_LIMIT}`;
-  const response = await fetch(url);
-  if (!response.ok) {
-    throw new Error(response.statusText);
-  }
-
-  const result = await response.json();
-
-  const top10 = result.results;
-
-  const randomGif = top10[Math.floor(Math.random() * top10.length)];
-
-  return randomGif.itemurl;
-};
+const { TOKEN } = require('./config');
+const { getGif } = require('./util');
 
 const client = new Discord.Client();
 
@@ -32,7 +16,11 @@ client.on('message', async (message) => {
   } else if (content.startsWith('gif ')) {
     try {
       const gifUrl = await getGif(content.slice(4));
-      message.channel.send(gifUrl);
+      message.channel.startTyping(1);
+      setTimeout(() => {
+        message.channel.send(gifUrl);
+        message.channel.stopTyping();
+      }, 500);
     } catch (error) {
       console.error('Gif not found');
     }
