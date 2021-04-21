@@ -1,7 +1,7 @@
 const Discord = require('discord.js');
 
-const { TOKEN } = require('./config');
-const { getGif } = require('./util');
+const { TOKEN } = require('../config');
+const { getGif } = require('./util/util');
 
 const client = new Discord.Client();
 

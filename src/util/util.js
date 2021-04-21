@@ -1,5 +1,5 @@
 const fetch = require('node-fetch');
-const { TENOR_URL, TENOR_TOKEN, GIF_LIMIT } = require('./config');
+const { TENOR_URL, TENOR_TOKEN, GIF_LIMIT } = require('../../config');
 
 const getGif = async (param) => {
   const url = `${TENOR_URL}search?q=${param}&key=${TENOR_TOKEN}&limit=${GIF_LIMIT}`;
