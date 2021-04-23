@@ -28,8 +28,8 @@ client.on('message', async (message) => {
       console.error('Gif not found');
     }
   } else if (content.startsWith('-seneca upcoming')) {
+    message.channel.startTyping(1);
     try {
-      message.channel.startTyping(1);
       const upcoming = await seneca.getUpcomingDue();
       message.channel.stopTyping();
       upcoming.forEach((due) => {
@@ -41,6 +41,7 @@ client.on('message', async (message) => {
         message.channel.send(response);
       });
     } catch (error) {
+      message.channel.stopTyping();
       console.error(error, 'Unable to get upcoming due');
     }
   }
