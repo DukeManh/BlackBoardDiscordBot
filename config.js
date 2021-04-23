@@ -9,7 +9,12 @@ if (env.error) {
 const TENOR_URL = 'https://g.tenor.com/v1/';
 const GIF_LIMIT = '10';
 const Seneca = {
+  BASE_URL: 'https://learn.senecacollege.ca',
   LOGIN_URL: 'https://learn.senecacollege.ca/auth-saml/saml/login?apId=_850_1',
+  AUTHENTICATE_API_URL:
+    'https://learn.senecacollege.ca/learn/api/v1/users/me/preferences/ultraui.first.time.welcome.welcome.visited',
+  HOME_URL: 'https://learn.senecacollege.ca/ultra',
+  STREAM_URL: 'https://learn.senecacollege.ca/learn/api/v1/streams/ultra',
 };
 
 module.exports = {

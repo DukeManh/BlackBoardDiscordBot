@@ -12,6 +12,7 @@
   "rules": {
     "no-console": "off",
     "comma-dangle": "off",
-    "object-curly-newline": "off"
+    "object-curly-newline": "off",
+    "no-underscore-dangle": "off"
   }
 }
