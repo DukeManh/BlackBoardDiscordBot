@@ -1,9 +1,9 @@
 const puppeteer = require('puppeteer');
 const {
+  BASE_URL,
   LOGIN_URL,
   STREAM_URL,
   STREAM_API,
-  BASE_URL,
   SENECA_USERNAME,
   SENECA_PASSWORD,
 } = require('../../config');
@@ -68,30 +68,9 @@ class Seneca {
     return entries;
   };
 
-  getUpcomingDue = async () => {
+  filter = async (pastDue = false) => {
     const entries = await this.getStream();
-    const upcoming = [];
-
-    entries.forEach((entry) => {
-      const detail = {};
-
-      const dueDate = entry.itemSpecificData.notificationDetails;
-      if (dueDate) {
-        detail.dueDate = new Date(dueDate).toLocaleDateString();
-        if (detail.dueDate >= new Date()) {
-          detail.url = `${BASE_URL}${entry.se_itemUri}`;
-          detail.title = entry.itemSpecificData.title;
-          detail.postDate = new Date(entry.se_timestamp).toLocaleString();
-          upcoming.push(detail);
-        }
-      }
-    });
-    return upcoming;
-  };
-
-  getPastDue = async () => {
-    const entries = await this.getStream();
-    const upcoming = [];
+    const due = [];
 
     entries.forEach((entry) => {
       const detail = {};
@@ -100,25 +79,21 @@ class Seneca {
       if (dueDate) {
         const date = new Date(dueDate);
         detail.dueDate = date.toLocaleString();
-        if (date <= new Date()) {
+        const now = new Date();
+        if (pastDue ? date <= now : date >= now) {
           detail.url = `${BASE_URL}${entry.se_itemUri}`;
           detail.title = entry.itemSpecificData.title;
           detail.postDate = new Date(entry.se_timestamp).toLocaleString();
-          upcoming.push(detail);
+          due.push(detail);
         }
       }
     });
-    return upcoming;
+    return due;
   };
-}
 
-Seneca.login()
-  .then(async (seneca) => {
-    const upcoming = await seneca.getUpcomingDue();
-    console.log(upcoming);
-  })
-  .catch((error) => {
-    console.error(error);
-  });
+  getUpcomingDue = async () => this.filter();
+
+  getPastDue = async () => this.filter(true);
+}
 
 module.exports = Seneca;

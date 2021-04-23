@@ -1,11 +1,14 @@
 const Discord = require('discord.js');
 
-const { TOKEN } = require('../config');
+const { TOKEN, BASE_URL } = require('../config');
 const { getGif } = require('./util/util');
+const Seneca = require('./lib/Seneca');
 
 const client = new Discord.Client();
+let seneca;
 
-client.on('ready', () => {
+client.on('ready', async () => {
+  seneca = await Seneca.login();
   console.log(`Logged in as ${client.user.tag}`);
 });
 
@@ -23,6 +26,22 @@ client.on('message', async (message) => {
       }, 500);
     } catch (error) {
       console.error('Gif not found');
+    }
+  } else if (content.startsWith('-seneca upcoming')) {
+    try {
+      message.channel.startTyping(1);
+      const upcoming = await seneca.getUpcomingDue();
+      message.channel.stopTyping();
+      upcoming.forEach((due) => {
+        const response = new Discord.MessageEmbed()
+          .setTitle(due.title)
+          .setURL(due.url)
+          .setAuthor('Seneca', '', BASE_URL)
+          .setDescription(due.dueDate);
+        message.channel.send(response);
+      });
+    } catch (error) {
+      console.error(error, 'Unable to get upcoming due');
     }
   }
 });
