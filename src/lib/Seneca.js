@@ -33,8 +33,8 @@ class Seneca {
     });
 
     const { cookies } = await page._client.send('Network.getAllCookies');
-    if (!cookies) {
-      return undefined;
+    if (!cookies?.length) {
+      throw new Error('Unable to login');
     }
 
     await browser.close();
@@ -65,7 +65,7 @@ class Seneca {
     await page.goto(STREAM_URL, { waitUntil: 'networkidle0' });
 
     const { cookies } = await page._client.send('Network.getAllCookies');
-    if (cookies) {
+    if (cookies?.length) {
       this.cookies = cookies;
     }
 
@@ -93,6 +93,7 @@ class Seneca {
         }
       }
     });
+    console.log(due.length);
     return due;
   };
 

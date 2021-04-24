@@ -14,6 +14,7 @@ client.on('ready', async () => {
 
 client.on('message', async (message) => {
   const content = message.content.toLowerCase().trim();
+
   if (content === 'hi') {
     message.channel.send('Hello');
   } else if (content.startsWith('gif ')) {
@@ -29,20 +30,32 @@ client.on('message', async (message) => {
     }
   } else if (content.startsWith('-seneca upcoming')) {
     message.channel.startTyping(1);
+    let sec = 0;
+    const inter = setInterval(() => {
+      sec += 1;
+      console.log(sec);
+    }, 1000);
     try {
-      const upcoming = await seneca.getUpcomingDue();
-      message.channel.stopTyping();
-      upcoming.forEach((due) => {
-        const response = new Discord.MessageEmbed()
-          .setTitle(due.title)
-          .setURL(due.url)
-          .setAuthor('Seneca', '', BASE_URL)
-          .setDescription(due.dueDate);
-        message.channel.send(response);
+      let upcoming = await seneca.getUpcomingDue();
+      upcoming = upcoming.map((due) => {
+        const field = {
+          name: `${due.title}, ${due.dueDate}`,
+          value: due.url,
+        };
+        return field;
       });
+      const response = new Discord.MessageEmbed()
+        .setTitle('Upcoming assignments')
+        .setURL(BASE_URL)
+        .setDescription(`All assignments with due dates before ${new Date().toLocaleString()}`)
+        .addFields(...upcoming);
+      message.channel.stopTyping();
+      message.channel.send(response);
     } catch (error) {
       message.channel.stopTyping();
       console.error(error, 'Unable to get upcoming due');
+    } finally {
+      clearInterval(inter);
     }
   }
 });
