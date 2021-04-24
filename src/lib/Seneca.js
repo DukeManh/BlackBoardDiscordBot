@@ -64,6 +64,11 @@ class Seneca {
 
     await page.goto(STREAM_URL, { waitUntil: 'networkidle0' });
 
+    const { cookies } = await page._client.send('Network.getAllCookies');
+    if (cookies) {
+      this.cookies = cookies;
+    }
+
     await browser.close();
     return entries;
   };
