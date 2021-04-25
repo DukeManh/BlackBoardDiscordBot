@@ -1,5 +1,5 @@
 const fetch = require('node-fetch');
-const { TENOR_URL, TENOR_TOKEN, GIF_LIMIT } = require('../../config');
+const { TENOR_URL, TENOR_TOKEN, GIF_LIMIT } = require('../config');
 
 const getGif = async (param) => {
   const url = `${TENOR_URL}search?q=${param}&key=${TENOR_TOKEN}&limit=${GIF_LIMIT}`;
@@ -10,8 +10,11 @@ const getGif = async (param) => {
 
   const result = await response.json();
   const top10 = result.results;
-  const randomGif = top10[Math.floor(Math.random() * top10.length)];
+  if (!top10.length) {
+    return '';
+  }
 
+  const randomGif = top10[Math.floor(Math.random() * top10.length)];
   return randomGif.itemurl;
 };
 

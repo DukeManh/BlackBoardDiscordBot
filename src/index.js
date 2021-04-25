@@ -1,11 +1,16 @@
 const Discord = require('discord.js');
 
 const { TOKEN, BASE_URL } = require('../config');
-const { getGif } = require('./util/util');
-const Seneca = require('./lib/Seneca');
+const { getGif } = require('./gif');
+const Seneca = require('./Seneca');
 
 const client = new Discord.Client();
+
 let seneca;
+
+Seneca.login().then((bbSeneca) => {
+  seneca = bbSeneca;
+});
 
 client.on('ready', async () => {
   seneca = await Seneca.login();
@@ -37,6 +42,12 @@ client.on('message', async (message) => {
     }, 1000);
     try {
       let upcoming = await seneca.getUpcomingDue();
+      if (!upcoming?.length) {
+        message.channel.send("You're good");
+        message.channel.stopTyping();
+        return;
+      }
+
       upcoming = upcoming.map((due) => {
         const field = {
           name: `${due.title}, ${due.dueDate}`,
@@ -44,11 +55,13 @@ client.on('message', async (message) => {
         };
         return field;
       });
+
       const response = new Discord.MessageEmbed()
         .setTitle('Upcoming assignments')
         .setURL(BASE_URL)
         .setDescription(`All assignments with due dates before ${new Date().toLocaleString()}`)
         .addFields(...upcoming);
+
       message.channel.stopTyping();
       message.channel.send(response);
     } catch (error) {
