@@ -17,6 +17,7 @@ client.on('ready', async () => {
   console.log(`Logged in as ${client.user.tag}`);
 });
 
+// TODO: properly handle commands after prefix
 client.on('message', async (message) => {
   const content = message.content.toLowerCase().trim();
 
