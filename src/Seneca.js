@@ -8,6 +8,8 @@ const {
   SENECA_PASSWORD,
 } = require('../config');
 
+// Connect to local Chrome websocket
+const getBrowser = async () => puppeteer.connect({ browserWSEndpoint: 'ws://localhost:3000' });
 class Seneca {
   constructor(cookies) {
     this.cookies = cookies;
@@ -15,9 +17,10 @@ class Seneca {
 
   static login = async () => {
     try {
-      const browser = await puppeteer.launch();
+      const browser = await getBrowser();
       const page = await browser.newPage();
       await page.setRequestInterception(true);
+      // Stop all image requests
       page.on('request', (request) => {
         if (request.resourceType() === 'image') request.abort();
         else request.continue();
@@ -34,8 +37,10 @@ class Seneca {
         timeout: 10000,
       });
 
+      // Get all cookies through dev tools
       const { cookies } = await page._client.send('Network.getAllCookies');
 
+      // Authenticated session should contain BbRouter cookie
       if (!cookies?.length || !cookies.some((cookie) => cookie.name === 'BbRouter')) {
         await browser.close();
         throw new Error('Username or password is incorrect');
@@ -55,8 +60,9 @@ class Seneca {
         throw new Error('Unable to authenticate');
       }
 
-      const browser = await puppeteer.launch();
+      const browser = await getBrowser();
       const page = await browser.newPage();
+      // Stop all image requests
       await page.setRequestInterception(true);
       page.on('request', (request) => {
         if (request.resourceType() === 'image') request.abort();
@@ -65,7 +71,9 @@ class Seneca {
 
       await page.setCookie(...this.cookies);
 
+      // all stream entries
       let entries = [];
+      // Catch response from STREAM_API request
       page.on('response', async (response) => {
         if (response.url() === STREAM_API && response.status() === 200) {
           const result = await response.json();
@@ -80,6 +88,7 @@ class Seneca {
 
       const { cookies } = await page._client.send('Network.getAllCookies');
 
+      // Update cookies
       if (cookies?.length) {
         this.cookies = cookies;
       }
@@ -96,6 +105,7 @@ class Seneca {
     const entries = await this.getStream();
     const due = [];
 
+    // Filter entries based on dueDate, ignore if dueDate is null
     entries.forEach((entry) => {
       const detail = {};
 
